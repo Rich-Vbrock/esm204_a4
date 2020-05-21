@@ -1,0 +1,103 @@
+---
+title: "esm204_a4"
+author: "Richard Viebrock"
+date: "5/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(wesanderson)
+
+```
+
+```{r}
+
+# Build functions in this chunk
+
+temp <- function(t, T) {temp = pmin(T*t/100, T)}
+econ <- function(t) {econ = exp(-1*b*t^2)}
+consumption <- function(k, t) {k*exp(g*t)}
+utility <- function(c) {(c^(1-n))/(1-n)}
+# discount_rate <- 
+
+```
+
+```{r}
+
+# Assign values
+
+T_low <- 0
+T_med <- 2
+T_high <- 8
+t <- 0:200
+o <- 0.005
+n <- .5
+g <- .01
+b <- .05
+
+```
+
+```{r}
+
+# Build data frames for each scenario
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption))
+
+T_02 <- data.frame(temp_increase = T_med,
+                   year = t,
+                   temp = temp(t, T_med)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption))
+
+T_08 <- data.frame(temp_increase = T_high,
+                   year = t,
+                   temp = temp(t, T_high)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption))
+    
+```
+
+```{r}
+# Plot everything using data frames created above
+
+# Temperature
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = temp), size = 1, color = "purple")+
+  geom_line(data = T_02, aes(x = year, y = temp), size = 1, color = "red")+
+  geom_line(data = T_08, aes(x = year, y = temp), size = 1, color = "blue")
+
+# Consumption
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = consumption), 
+            size = 1, color = "purple")+
+  geom_line(data = T_02, aes(x = year, y = consumption), 
+            size = 1, color = "red")+
+  geom_line(data = T_08, aes(x = year, y = consumption), 
+            size = 1, color = "blue")
+
+# Utility
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = utility), size = 1, color = "purple")+
+  geom_line(data = T_02, aes(x = year, y = utility), size = 1, color = "red")+
+  geom_line(data = T_08, aes(x = year, y = utility), size = 1, color = "blue")
+
+```
+
+```{r}
+
+```
+
