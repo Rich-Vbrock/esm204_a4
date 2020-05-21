@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE,message = FALSE)
 ```
 
 ```{r}
@@ -22,6 +22,8 @@ library(pracma)
 ```{r}
 
 # Assign values & names to parameters given in the assignment
+# -----------------------------------------------------------
+
 T_low <- 0
 T_med <- 2
 T_high <- 8
@@ -34,10 +36,10 @@ b <- .05
 
 ```
 
-
 ```{r}
 
 # Build functions that are given in the assignment
+# ------------------------------------------------
 
 temp <- function(t, T) {temp = pmin(T*t/100, T)}
 econ <- function(t) {econ = exp(-1*b*t^2)}
@@ -49,8 +51,10 @@ discount_rate <- o + n*g
 
 ```{r}
 
-# Questions 1 & 2
-# Build data frames for each scenario using the functions above. These data frames will be used to plot everythig for question 1. (Need to double check these answers)
+# Questions 1 & 2: build initial data frame
+# -----------------------------------------
+
+# Build data frames for each scenario. Use the functions above to calculate temperature increase, economic activity (consumption), utility, and present value of utility. These data frames will be used to plot everythig for question 1.
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -90,7 +94,86 @@ T_04.4 <- data.frame(temp_increase = T_bau,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
+```
+
+```{r}
+
+# Question 1a, 1b, 1c
+# -------------------
+
+# Plot temperature increase, consumption, and utility using the data frames above. (Need to make these bad boys look prettier)
+
+# Temperature
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = temp, color = "0* Increase"), size = 1)+
+  geom_line(data = T_02, aes(x = year, y = temp, color = "2* Increase"), size = 1)+
+  geom_line(data = T_08, aes(x = year, y = temp, color = "8* Increase"), size = 1)+
+  scale_color_manual(values = c("yellow3", "darkorange", "darkred"))+
+  scale_y_continuous(limits = c(0, 9),
+                     expand = c(0, 0.5),
+                     breaks = seq(0, 9, by = 2))+
+  scale_x_continuous(limits = c(0, 200),
+                     expand = c(0, 0))+
+  labs(x = "Years from Year 0",
+       y = "Temperature Increase",
+       title = "Climate Scenarios: Temperature Increase over Time",
+       color = "Scenario")+
+  theme_light()+
+  theme(legend.position = c(0.20, 0.95),
+        legend.justification = c("right", "top"),
+        legend.background = element_rect(fill = "gray85"))
+
+# -------------------------------------------------------------------------------
+
+# Consumption
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = consumption, color = "0* Increase"), size = 1)+
+  geom_line(data = T_02, aes(x = year, y = consumption, color = "2* Increase"), size = 1)+
+  geom_line(data = T_08, aes(x = year, y = consumption, color = "8* Increase"), size = 1)+
+  scale_color_manual(values = c("yellow3", "darkorange", "darkred"))+
+  scale_y_continuous(limits = c(0, 7),
+                     expand = c(0, 0),
+                     breaks = seq(0, 7, by = 2))+
+  scale_x_continuous(limits = c(0, 200),
+                     expand = c(0, 0))+
+  labs(x = "Years from Year 0",
+       y = "Economic Activity (COnsumption)",
+       title = "Climate Scenarios: Economic Activity (Conspumption) over Time",
+       color = "Scenario")+
+  theme_light()+
+  theme(legend.position = c(0.20, 0.95),
+        legend.justification = c("right", "top"),
+        legend.background = element_rect(fill = "gray85"))
+
+# -------------------------------------------------------------------------------
+
+# Utility
+ggplot()+
+  geom_line(data = T_00, aes(x = year, y = utility, color = "0* Increase"), size = 1)+
+  geom_line(data = T_02, aes(x = year, y = utility, color = "2* Increase"), size = 1)+
+  geom_line(data = T_08, aes(x = year, y = utility, color = "8* Increase"), size = 1)+
+  scale_color_manual(values = c("yellow3", "darkorange", "darkred"))+
+  scale_y_continuous(limits = c(0, 7),
+                     expand = c(0, 0),
+                     breaks = seq(0, 7, by = 2))+
+  scale_x_continuous(limits = c(0, 200),
+                     expand = c(0, 0))+
+  labs(x = "Years from Year 0",
+       y = "Utility",
+       title = "Climate Scenarios: Utility over Time",
+       color = "Scenario")+
+  theme_light()+
+  theme(legend.position = c(0.20, 0.95),
+        legend.justification = c("right", "top"),
+        legend.background = element_rect(fill = "gray85"))
+
+```
+
+```{r}
+# Question 2a
 # -----------------------------------------------------
+
+# Create new data frame. Sum the present value of utility from T = 0 and T = 4.4. Calculate the percentage loss in present value using - (new - old) / old.
 
 pct_change_01 <- data.frame(sum(T_04.4$T_00.pv_utility),
                          sum(T_04.4$pv_utility)) %>% 
@@ -100,42 +183,13 @@ pct_change_01 <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```
 
-```{r}
-
-# Question 1a, 1b, 1c
-# Plot temperature increase, consumption, and utility using the data frames above. (Need to make these bad boys look prettier)
-
-# Temperature
-ggplot()+
-  geom_line(data = T_00, aes(x = year, y = temp), size = 1, color = "purple")+
-  geom_line(data = T_02, aes(x = year, y = temp), size = 1, color = "red")+
-  geom_line(data = T_08, aes(x = year, y = temp), size = 1, color = "blue")
-
-# -------------------------------------------------------------------------------
-
-# Consumption
-ggplot()+
-  geom_line(data = T_00, aes(x = year, y = consumption), 
-            size = 1, color = "purple")+
-  geom_line(data = T_02, aes(x = year, y = consumption), 
-            size = 1, color = "red")+
-  geom_line(data = T_08, aes(x = year, y = consumption), 
-            size = 1, color = "blue")
-
-# -------------------------------------------------------------------------------
-
-# Utility
-ggplot()+
-  geom_line(data = T_00, aes(x = year, y = utility), size = 1, color = "purple")+
-  geom_line(data = T_02, aes(x = year, y = utility), size = 1, color = "red")+
-  geom_line(data = T_08, aes(x = year, y = utility), size = 1, color = "blue")
-
-```
 
 ```{r}
 
-# Question 2b
-# Sensitivity Analysis: 10% increase in T
+# Question 2b: Sensitivity analsys of 10% increase in T
+# -----------------------------------------------------
+
+# Increase T by 10% by multiplying it by 1.1
 
 T_bau <- 4.4*1.1
 t <- 0:200
@@ -145,7 +199,8 @@ g <- .01
 b <- .05
 discount_rate <- o + n*g
 
-# --------------------------------------------------------------
+# Now, create new data frame for T = 0 using modified parameters
+# ----------------------------------------------------------------
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -155,7 +210,8 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# ------------------------------------------------------
+# Now, create new data frame for T = 4.4 using modified parameters
+# ----------------------------------------------------------------
 
 T_04.4 <- data.frame(temp_increase = T_bau,
                    year = t,
@@ -167,7 +223,8 @@ T_04.4 <- data.frame(temp_increase = T_bau,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
-# -----------------------------------------------------
+# Now, create new data frame. Sum the present value of utility at T = 0 and T = 4.4. Calculate the percentage loss in present value using - (new - old) / old. Calculate elasticity by dividing percentage change in parameter by percentage change in net present value of utility.  
+# --------------------------------------------------------------
 
 pct_change_T <- data.frame(sum(T_04.4$T_00.pv_utility),
                          sum(T_04.4$pv_utility)) %>% 
@@ -182,8 +239,11 @@ pct_change_T <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Question 2b
-# Sensitivity Analysis: 10% increase in n
+# Question 2b: Sensitivity analsys of 10% increase in n
+# -----------------------------------------------------
+
+# Increase n by 10% by multiplying it by 1.1
+# ------------------------------------------
 
 T_bau <- 4.4
 t <- 0:200
@@ -193,7 +253,8 @@ g <- .01
 b <- .05
 discount_rate <- o + n*g
 
-# --------------------------------------------------------------
+# Now, create new data frame for T = 0 using modified parameters
+# ----------------------------------------------------------------
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -203,7 +264,8 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# ------------------------------------------------------
+# Now, create new data frame for T = 4.4 using modified parameters
+# ----------------------------------------------------------------
 
 T_04.4 <- data.frame(temp_increase = T_bau,
                    year = t,
@@ -215,7 +277,8 @@ T_04.4 <- data.frame(temp_increase = T_bau,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
-# -----------------------------------------------------
+# Now, create new data frame. Sum the present value of utility at T = 0 and T = 4.4. Calculate the percentage loss in present value using - (new - old) / old. Calculate elasticity by dividing percentage change in parameter by percentage change in net present value of utility.  
+# --------------------------------------------------------------
 
 pct_change_n <- data.frame(sum(T_04.4$T_00.pv_utility),
                          sum(T_04.4$pv_utility)) %>% 
@@ -231,8 +294,11 @@ pct_change_n <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Question 2b
-# Sensitivity Analysis: 10% increase in g
+# Question 2b: Sensitivity analsys of 10% increase in g
+# -----------------------------------------------------
+
+# Increase g by 10% by multiplying it by 1.1
+# ------------------------------------------
 
 T_bau <- 4.4
 t <- 0:200
@@ -242,8 +308,8 @@ g <- .01*1.1
 b <- .05
 discount_rate <- o + n*g
 
-# --------------------------------------------------------------
-
+# Now, create new data frame for T = 0 using modified parameters
+# ----------------------------------------------------------------
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
                    temp = temp(t, T_low)) %>% 
@@ -252,7 +318,8 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# ------------------------------------------------------
+# Now, create new data frame for T = 4.4 using modified parameters
+# ----------------------------------------------------------------
 
 T_04.4 <- data.frame(temp_increase = T_bau,
                    year = t,
@@ -264,7 +331,8 @@ T_04.4 <- data.frame(temp_increase = T_bau,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
-# -----------------------------------------------------
+# Now, create new data frame. Sum the present value of utility at T = 0 and T = 4.4. Calculate the percentage loss in present value using - (new - old) / old. Calculate elasticity by dividing percentage change in parameter by percentage change in net present value of utility.  
+# -------------------------------------------------------------
 
 pct_change_g <- data.frame(sum(T_04.4$T_00.pv_utility),
                          sum(T_04.4$pv_utility)) %>% 
@@ -280,8 +348,11 @@ pct_change_g <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Question 2b
-# Sensitivity Analysis: 10% increase in b
+# Question 2b: Sensitivity analsys of 10% increase in b
+# -----------------------------------------------------
+
+# Increase b by 10% by multiplying it by 1.1
+# ------------------------------------------
 
 T_bau <- 4.4
 t <- 0:200
@@ -291,7 +362,8 @@ g <- .01
 b <- .05*1.1
 discount_rate <- o + n*g
 
-# --------------------------------------------------------------
+# Now, create new data frame for T = 0 using modified parameters
+# ----------------------------------------------------------------
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -301,7 +373,8 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# ------------------------------------------------------
+# Now, create new data frame for T = 4.4 using modified parameters
+# ----------------------------------------------------------------
 
 T_04.4 <- data.frame(temp_increase = T_bau,
                    year = t,
@@ -313,6 +386,7 @@ T_04.4 <- data.frame(temp_increase = T_bau,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
+# Now, create new data frame. Sum the present value of utility at T = 0 and T = 4.4. Calculate the percentage loss in present value using - (new - old) / old. Calculate elasticity by dividing percentage change in parameter by percentage change in net present value of utility.  
 # -----------------------------------------------------
 
 pct_change_b <- data.frame(sum(T_04.4$T_00.pv_utility),
@@ -329,7 +403,15 @@ pct_change_b <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Question 2c - first run-through. Not the neatest way to do it, but it works. Identify value of theta at which pv utility in T_00 is equal to that at 4.4 (expected). Input different values for theta until the pv's are the same. 
+# Question 2c - Goal: Identify the value of theta (theta*) at which the present value of utility at T = 0 is equal to the present value of utiity at T = 4.4. Use fzero function to calculate theta*. Need to better understand how Anthony derived this function.
+# --------------------------------------------------------------------------------------------------
+
+# Anthony's solution to 2c
+# -------------------------
+theta_star_01 <- fzero(fun = function(theta){((theta)^(1-n)*pct_change_01$utility_base) - pct_change_01$utility_bau}, x = 0)$x
+
+# Check to make sure that theta* is the correct value. Reassign parameters to ensure that they are as they were given in assignment. Toggle consumption() function to account for the effect of theta 
+# -----------------------------------------
 
 T_bau <- 4.4
 t <- 0:200
@@ -337,11 +419,12 @@ o <- 0.005
 n <- .5
 g <- .01
 b <- .05
-theta <- 0.605641
+theta <- theta_star_01
 discount_rate <- o + n*g
 consumption <- function(k, t) {theta*(k*exp(g*t))}
 
-# --------------------------------------------------------------
+# Create data frame at T = 0 using the new consumption function and theta*
+# ------------------------------------------------------------------------
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -350,6 +433,9 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(consumption = consumption(economy, year)) %>% 
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
+
+# Sum the NPV of utility at T = 0 with theta* and compare with NPV of utility at T = 4.4 to ensure accuracy
+# ---------------------------------------------------------------------------------------------------------
 
 theta_01 <- data.frame(sum(T_00$pv_utility),
                        pct_change_01$utility_bau) %>% 
@@ -361,11 +447,14 @@ theta_01 <- data.frame(sum(T_00$pv_utility),
 
 ```{r}
 
-# Question 2d. Do the same as above, but use e(T) ~ 4.2 instead of 4.4. First, calculate e(T)
+# Question 2d - Goal: Identify the value of theta (theta*) at which the present value of utility at T = 0 is equal to the present value of utiity at e(T) ~ 4.2. First, calculate the expected value of T. Assign theta a value of 1. 
+# ---------------------------------------------------------------------------------------------------------
+
 T_exp <- 2*.2 + 4*.5 + 6*.3
 theta <- 1
 
-# Create new data frame for e(T) to calculate the pv of utility given a temperature increase of e(T)
+# Create data frame for T = e(T) ~ 4.2
+# -------------------------------------
 
 T_exp_01 <- data.frame(temp_increase = T_exp,
                    year = t,
@@ -375,12 +464,30 @@ T_exp_01 <- data.frame(temp_increase = T_exp,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-T_exp_sum <- data.frame(sum(T_exp_01$pv_utility))
+# Sum the pv of utility at e(T)
+# -----------------------------
 
-# Assign a new value to theta and toggle until pv_utility at T = 0 is equal to pv_utility at e(T) ~ 4.2
+T_exp_sum <- data.frame(sum(T_exp_01$pv_utility)) %>% 
+  rename(utility_exp = sum.T_exp_01.pv_utility.)
 
-theta <- 0.6315
+```
 
+```{r}
+
+# Question 2d continued
+# ---------------------
+
+# Anthony's solution to 2c (Need to better understand how Anthony derived this function)
+# --------------------------------------------------------------------------------------
+theta_star_02 <- fzero(fun = function(theta) {((theta)^(1-n)*pct_change_01$utility_base) - T_exp_sum$utility_exp}, 
+                       x = 0)$x
+
+# Assign new value to theta
+# -------------------------
+theta <- theta_star_02
+
+# Create data frame for T = 0 using the new consumption function and theta*
+# -------------------------------------------------------------------------
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
                    temp = temp(t, T_low)) %>% 
@@ -389,60 +496,14 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
+# Sum the PV of utility at T = 0 with theta* and compare with NPV of utility at T = 4.4 to ensure accuracy
+# ---------------------------------------------------------------------------------------------------------
+
 theta_02 <- data.frame(sum(T_00$pv_utility),
-                       T_exp_sum$sum.T_exp_01.pv_utility.) %>% 
+                       T_exp_sum$utility_exp) %>% 
   rename(utility_base = sum.T_00.pv_utility.) %>% 
-  rename(utility_bau = T_exp_sum.sum.T_exp_01.pv_utility.)
+  rename(utility_bau = T_exp_sum.utility_exp)
 
-```
-
-
-```{r}
-# Anthony's solution to 2c & d
-
-theta_star <- fzero(fun = function(theta){((theta)^(1-n)*pct_change_01$utility_base) - pct_change_01$utility_bau}, x = 0)$x
-
-
-```
-
-
-```{r}
-
-# Sensistivity Analysis - assign new values
-
-# T_bau_01 <- 4.4*1.1
-# n_01 <- .5*1.1
-# g_01 <- .01*1.1
-# b_01 <- .05*1.1
-# discount_rate_01 <- o + n_01*g_01
-# 
-# # ---------------------------------------------------
-# 
-# T_00 <- data.frame(temp_increase = T_low,
-#                    year = t,
-#                    temp = temp(t, T_low)) %>% 
-#   mutate(economy = econ(temp)) %>% 
-#   mutate(consumption = consumption(economy, year)) %>% 
-#   mutate(utility = utility(consumption)) %>% 
-#   mutate(pv_utility = utility/(1+discount_rate)^year)
-# 
-# T_04.4 <- data.frame(temp_increase = T_bau,
-#                    year = t,
-#                    temp = temp(t, T_bau)) %>% 
-#   mutate(economy = econ(temp)) %>% 
-#   mutate(consumption = consumption(economy, year)) %>% 
-#   mutate(utility = utility(consumption)) %>% 
-#   mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
-#   data.frame(T_00$pv_utility) %>% 
-#   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
-# 
-# pct_change <- data.frame(sum(T_04.4$T_00.pv_utility),
-#                          sum(T_04.4$pv_utility)) %>% 
-#   rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
-#   rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
-#   mutate(L = (utility_bau - utility_base)/utility_base)
-# 
-# # ---------------------------------------------------
 
 ```
 
