@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(wesanderson)
+library(purrr)
+library(pracma)
 
 ```
 
@@ -47,6 +49,7 @@ discount_rate <- o + n*g
 
 ```{r}
 
+# Questions 1 & 2
 # Build data frames for each scenario using the functions above. These data frames will be used to plot everythig for question 1. (Need to double check these answers)
 
 T_00 <- data.frame(temp_increase = T_low,
@@ -98,6 +101,8 @@ pct_change_01 <- data.frame(sum(T_04.4$T_00.pv_utility),
 ```
 
 ```{r}
+
+# Question 1a, 1b, 1c
 # Plot temperature increase, consumption, and utility using the data frames above. (Need to make these bad boys look prettier)
 
 # Temperature
@@ -129,7 +134,9 @@ ggplot()+
 
 ```{r}
 
-# Assign values & names to parameters given in the assignment
+# Question 2b
+# Sensitivity Analysis: 10% increase in T
+
 T_bau <- 4.4*1.1
 t <- 0:200
 o <- 0.005
@@ -175,7 +182,9 @@ pct_change_T <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Assign values & names to parameters given in the assignment
+# Question 2b
+# Sensitivity Analysis: 10% increase in n
+
 T_bau <- 4.4
 t <- 0:200
 o <- 0.005
@@ -222,7 +231,9 @@ pct_change_n <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Assign values & names to parameters given in the assignment
+# Question 2b
+# Sensitivity Analysis: 10% increase in g
+
 T_bau <- 4.4
 t <- 0:200
 o <- 0.005
@@ -269,7 +280,9 @@ pct_change_g <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Assign values & names to parameters given in the assignment
+# Question 2b
+# Sensitivity Analysis: 10% increase in b
+
 T_bau <- 4.4
 t <- 0:200
 o <- 0.005
@@ -313,6 +326,85 @@ pct_change_b <- data.frame(sum(T_04.4$T_00.pv_utility),
   mutate(elasticity = .1/pct_change_L)
 
 ```
+
+```{r}
+
+# Question 2c - first run-through. Not the neatest way to do it, but it works. Identify value of theta at which pv utility in T_00 is equal to that at 4.4 (expected). Input different values for theta until the pv's are the same. 
+
+T_bau <- 4.4
+t <- 0:200
+o <- 0.005
+n <- .5
+g <- .01
+b <- .05
+theta <- 0.605641
+discount_rate <- o + n*g
+consumption <- function(k, t) {theta*(k*exp(g*t))}
+
+# --------------------------------------------------------------
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+theta_01 <- data.frame(sum(T_00$pv_utility),
+                       pct_change_01$utility_bau) %>% 
+  rename(utility_base = sum.T_00.pv_utility.) %>% 
+  rename(utility_bau = pct_change_01.utility_bau)
+
+```
+
+
+```{r}
+
+# Question 2d. Do the same as above, but use e(T) ~ 4.2 instead of 4.4. First, calculate e(T)
+T_exp <- 2*.2 + 4*.5 + 6*.3
+theta <- 1
+
+# Create new data frame for e(T) to calculate the pv of utility given a temperature increase of e(T)
+
+T_exp_01 <- data.frame(temp_increase = T_exp,
+                   year = t,
+                   temp = temp(t, T_exp)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+T_exp_sum <- data.frame(sum(T_exp_01$pv_utility))
+
+# Assign a new value to theta and toggle until pv_utility at T = 0 is equal to pv_utility at e(T) ~ 4.2
+
+theta <- 0.6315
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+theta_02 <- data.frame(sum(T_00$pv_utility),
+                       T_exp_sum$sum.T_exp_01.pv_utility.) %>% 
+  rename(utility_base = sum.T_00.pv_utility.) %>% 
+  rename(utility_bau = T_exp_sum.sum.T_exp_01.pv_utility.)
+
+```
+
+
+```{r}
+# Anthony's solution to 2c & d
+
+theta_star <- fzero(fun = function(theta){((theta)^(1-n)*pct_change_01$utility_base) - pct_change_01$utility_bau}, x = 0)$x
+
+
+```
+
 
 ```{r}
 
