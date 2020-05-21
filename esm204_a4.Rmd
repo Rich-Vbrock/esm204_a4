@@ -19,12 +19,11 @@ library(wesanderson)
 
 ```{r}
 
-# Assign values
-
+# Assign values & names to parameters given in the assignment
 T_low <- 0
 T_med <- 2
 T_high <- 8
-T_4.4 <- 4.4
+T_bau <- 4.4
 t <- 0:200
 o <- 0.005
 n <- .5
@@ -36,7 +35,7 @@ b <- .05
 
 ```{r}
 
-# Build functions in this chunk
+# Build functions that are given in the assignment
 
 temp <- function(t, T) {temp = pmin(T*t/100, T)}
 econ <- function(t) {econ = exp(-1*b*t^2)}
@@ -48,7 +47,7 @@ discount_rate <- o + n*g
 
 ```{r}
 
-# Build data frames for each scenario
+# Build data frames for each scenario using the functions above. These data frames will be used to plot everythig for question 1. (Need to double check these answers)
 
 T_00 <- data.frame(temp_increase = T_low,
                    year = t,
@@ -58,12 +57,16 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
+# ------------------------------------------------------
+
 T_02 <- data.frame(temp_increase = T_med,
                    year = t,
                    temp = temp(t, T_med)) %>% 
   mutate(economy = econ(temp)) %>% 
   mutate(consumption = consumption(economy, year)) %>% 
   mutate(utility = utility(consumption))
+
+# ------------------------------------------------------
 
 T_08 <- data.frame(temp_increase = T_high,
                    year = t,
@@ -72,9 +75,11 @@ T_08 <- data.frame(temp_increase = T_high,
   mutate(consumption = consumption(economy, year)) %>% 
   mutate(utility = utility(consumption)) 
 
-T_04.4 <- data.frame(temp_increase = T_4.4,
+# ------------------------------------------------------
+
+T_04.4 <- data.frame(temp_increase = T_bau,
                    year = t,
-                   temp = temp(t, T_4.4)) %>% 
+                   temp = temp(t, T_bau)) %>% 
   mutate(economy = econ(temp)) %>% 
   mutate(consumption = consumption(economy, year)) %>% 
   mutate(utility = utility(consumption)) %>% 
@@ -82,16 +87,26 @@ T_04.4 <- data.frame(temp_increase = T_4.4,
   data.frame(T_00$pv_utility) %>% 
   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
 
+# -----------------------------------------------------
+
+pct_change_01 <- data.frame(sum(T_04.4$T_00.pv_utility),
+                         sum(T_04.4$pv_utility)) %>% 
+  rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+  rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+  mutate(L = (utility_bau - utility_base)/utility_base)
+
 ```
 
 ```{r}
-# Plot everything using data frames created above
+# Plot temperature increase, consumption, and utility using the data frames above. (Need to make these bad boys look prettier)
 
 # Temperature
 ggplot()+
   geom_line(data = T_00, aes(x = year, y = temp), size = 1, color = "purple")+
   geom_line(data = T_02, aes(x = year, y = temp), size = 1, color = "red")+
   geom_line(data = T_08, aes(x = year, y = temp), size = 1, color = "blue")
+
+# -------------------------------------------------------------------------------
 
 # Consumption
 ggplot()+
@@ -102,6 +117,8 @@ ggplot()+
   geom_line(data = T_08, aes(x = year, y = consumption), 
             size = 1, color = "blue")
 
+# -------------------------------------------------------------------------------
+
 # Utility
 ggplot()+
   geom_line(data = T_00, aes(x = year, y = utility), size = 1, color = "purple")+
@@ -111,6 +128,229 @@ ggplot()+
 ```
 
 ```{r}
+
+# Assign values & names to parameters given in the assignment
+T_bau <- 4.4*1.1
+t <- 0:200
+o <- 0.005
+n <- .5
+g <- .01
+b <- .05
+discount_rate <- o + n*g
+
+# --------------------------------------------------------------
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+# ------------------------------------------------------
+
+T_04.4 <- data.frame(temp_increase = T_bau,
+                   year = t,
+                   temp = temp(t, T_bau)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
+  data.frame(T_00$pv_utility) %>% 
+  mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
+
+# -----------------------------------------------------
+
+pct_change_T <- data.frame(sum(T_04.4$T_00.pv_utility),
+                         sum(T_04.4$pv_utility)) %>% 
+  rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+  rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+  mutate(L = (utility_bau - utility_base)/utility_base) %>% 
+  data.frame(pct_change_01$L) %>% 
+  rename(L_01 = pct_change_01.L) %>% 
+  mutate(pct_change_L = (L-L_01)/L_01) %>% 
+  mutate(elasticity = .1/pct_change_L)
+```
+
+```{r}
+
+# Assign values & names to parameters given in the assignment
+T_bau <- 4.4
+t <- 0:200
+o <- 0.005
+n <- .5*1.1
+g <- .01
+b <- .05
+discount_rate <- o + n*g
+
+# --------------------------------------------------------------
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+# ------------------------------------------------------
+
+T_04.4 <- data.frame(temp_increase = T_bau,
+                   year = t,
+                   temp = temp(t, T_bau)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
+  data.frame(T_00$pv_utility) %>% 
+  mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
+
+# -----------------------------------------------------
+
+pct_change_n <- data.frame(sum(T_04.4$T_00.pv_utility),
+                         sum(T_04.4$pv_utility)) %>% 
+  rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+  rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+  mutate(L = (utility_bau - utility_base)/utility_base) %>% 
+  data.frame(pct_change_01$L) %>% 
+  rename(L_01 = pct_change_01.L) %>% 
+  mutate(pct_change_L = (L-L_01)/L_01) %>% 
+  mutate(elasticity = .1/pct_change_L)
+
+```
+
+```{r}
+
+# Assign values & names to parameters given in the assignment
+T_bau <- 4.4
+t <- 0:200
+o <- 0.005
+n <- .5
+g <- .01*1.1
+b <- .05
+discount_rate <- o + n*g
+
+# --------------------------------------------------------------
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+# ------------------------------------------------------
+
+T_04.4 <- data.frame(temp_increase = T_bau,
+                   year = t,
+                   temp = temp(t, T_bau)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
+  data.frame(T_00$pv_utility) %>% 
+  mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
+
+# -----------------------------------------------------
+
+pct_change_g <- data.frame(sum(T_04.4$T_00.pv_utility),
+                         sum(T_04.4$pv_utility)) %>% 
+  rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+  rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+  mutate(L = (utility_bau - utility_base)/utility_base) %>% 
+  data.frame(pct_change_01$L) %>% 
+  rename(L_01 = pct_change_01.L) %>% 
+  mutate(pct_change_L = (L-L_01)/L_01) %>% 
+  mutate(elasticity = .1/pct_change_L)
+
+```
+
+```{r}
+
+# Assign values & names to parameters given in the assignment
+T_bau <- 4.4
+t <- 0:200
+o <- 0.005
+n <- .5
+g <- .01
+b <- .05*1.1
+discount_rate <- o + n*g
+
+# --------------------------------------------------------------
+
+T_00 <- data.frame(temp_increase = T_low,
+                   year = t,
+                   temp = temp(t, T_low)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year)
+
+# ------------------------------------------------------
+
+T_04.4 <- data.frame(temp_increase = T_bau,
+                   year = t,
+                   temp = temp(t, T_bau)) %>% 
+  mutate(economy = econ(temp)) %>% 
+  mutate(consumption = consumption(economy, year)) %>% 
+  mutate(utility = utility(consumption)) %>% 
+  mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
+  data.frame(T_00$pv_utility) %>% 
+  mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
+
+# -----------------------------------------------------
+
+pct_change_b <- data.frame(sum(T_04.4$T_00.pv_utility),
+                         sum(T_04.4$pv_utility)) %>% 
+  rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+  rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+  mutate(L = (utility_bau - utility_base)/utility_base) %>% 
+  data.frame(pct_change_01$L) %>% 
+  rename(L_01 = pct_change_01.L) %>% 
+  mutate(pct_change_L = (L-L_01)/L_01) %>% 
+  mutate(elasticity = .1/pct_change_L)
+
+```
+
+```{r}
+
+# Sensistivity Analysis - assign new values
+
+# T_bau_01 <- 4.4*1.1
+# n_01 <- .5*1.1
+# g_01 <- .01*1.1
+# b_01 <- .05*1.1
+# discount_rate_01 <- o + n_01*g_01
+# 
+# # ---------------------------------------------------
+# 
+# T_00 <- data.frame(temp_increase = T_low,
+#                    year = t,
+#                    temp = temp(t, T_low)) %>% 
+#   mutate(economy = econ(temp)) %>% 
+#   mutate(consumption = consumption(economy, year)) %>% 
+#   mutate(utility = utility(consumption)) %>% 
+#   mutate(pv_utility = utility/(1+discount_rate)^year)
+# 
+# T_04.4 <- data.frame(temp_increase = T_bau,
+#                    year = t,
+#                    temp = temp(t, T_bau)) %>% 
+#   mutate(economy = econ(temp)) %>% 
+#   mutate(consumption = consumption(economy, year)) %>% 
+#   mutate(utility = utility(consumption)) %>% 
+#   mutate(pv_utility = utility/(1+discount_rate)^year) %>% 
+#   data.frame(T_00$pv_utility) %>% 
+#   mutate(pct_change = (pv_utility - T_00.pv_utility)/T_00.pv_utility*100)
+# 
+# pct_change <- data.frame(sum(T_04.4$T_00.pv_utility),
+#                          sum(T_04.4$pv_utility)) %>% 
+#   rename(utility_base = sum.T_04.4.T_00.pv_utility.) %>% 
+#   rename(utility_bau = sum.T_04.4.pv_utility.) %>% 
+#   mutate(L = (utility_bau - utility_base)/utility_base)
+# 
+# # ---------------------------------------------------
 
 ```
 
