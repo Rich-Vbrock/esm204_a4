@@ -21,6 +21,8 @@ library(pracma)
 
 ```{r}
 
+# Whatsup mother-forker
+
 # Assign values & names to parameters given in the assignment
 # -----------------------------------------------------------
 
