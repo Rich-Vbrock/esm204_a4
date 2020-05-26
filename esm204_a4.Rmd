@@ -1,6 +1,6 @@
 ---
 title: "esm204_a4"
-author: "Richard Viebrock"
+author: "Richard Viebrock, Lucas Empson, and Audrey Nolan"
 date: "5/20/2020"
 output: html_document
 ---
@@ -16,12 +16,11 @@ library(janitor)
 library(wesanderson)
 library(purrr)
 library(pracma)
+library(here)
 
 ```
 
 ```{r}
-
-# Whatsup mother-forker
 
 # Assign values & names to parameters given in the assignment
 # -----------------------------------------------------------
@@ -118,12 +117,14 @@ ggplot()+
                      expand = c(0, 0))+
   labs(x = "Years from Year 0",
        y = "Temperature Increase",
-       title = "Climate Scenarios: Temperature Increase over Time",
+       title = "Figure 1 - Climate Scenarios: Temperature Increase over Time",
        color = "Scenario")+
   theme_light()+
   theme(legend.position = c(0.20, 0.95),
         legend.justification = c("right", "top"),
         legend.background = element_rect(fill = "gray85"))
+
+ggsave(here("temperature.jpg"))
 
 # -------------------------------------------------------------------------------
 
@@ -140,12 +141,14 @@ ggplot()+
                      expand = c(0, 0))+
   labs(x = "Years from Year 0",
        y = "Economic Activity (COnsumption)",
-       title = "Climate Scenarios: Economic Activity (Conspumption) over Time",
+       title = "Figure 2 - Climate Scenarios: Economic Activity (Conspumption) over Time",
        color = "Scenario")+
   theme_light()+
   theme(legend.position = c(0.20, 0.95),
         legend.justification = c("right", "top"),
         legend.background = element_rect(fill = "gray85"))
+
+ggsave(here("consumption.jpg"))
 
 # -------------------------------------------------------------------------------
 
@@ -162,12 +165,14 @@ ggplot()+
                      expand = c(0, 0))+
   labs(x = "Years from Year 0",
        y = "Utility",
-       title = "Climate Scenarios: Utility over Time",
+       title = "Figure 3 - Climate Scenarios: Utility over Time",
        color = "Scenario")+
   theme_light()+
   theme(legend.position = c(0.20, 0.95),
         legend.justification = c("right", "top"),
         legend.background = element_rect(fill = "gray85"))
+
+ggsave(here("utility.jpg"))
 
 ```
 
@@ -404,14 +409,14 @@ pct_change_b <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```{r}
 
-# Question 2c - Goal: Identify the value of theta (theta*) at which the present value of utility at T = 0 is equal to the present value of utiity at T = 4.4. Use fzero function to calculate theta*. Need to better understand how Anthony derived this function.
+# Question 2c - Goal: Identify the value of theta (theta*) at which the present value of utility at T = 0 is equal to the present value of utiity at T = 4.4. Use fzero function to calculate theta*
 # --------------------------------------------------------------------------------------------------
 
-# Anthony's solution to 2c
-# -------------------------
+# Use fzero function to calculate theta*
+# --------------------------------------
 theta_star_01 <- fzero(fun = function(theta){((1 - theta)^(1-n)*pct_change_01$utility_base) - pct_change_01$utility_bau}, x = 0)$x
 
-# Check to make sure that theta* is the correct value. Reassign parameters to ensure that they are as they were given in assignment. Toggle consumption() function to account for the effect of theta 
+# Check to make sure that theta* is the correct value. Reassign parameters to ensure that they are as they were given in assignment. 
 # -----------------------------------------
 
 T_bau <- 4.4
@@ -435,7 +440,7 @@ T_00 <- data.frame(temp_increase = T_low,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# Sum the NPV of utility at T = 0 with theta* and compare with NPV of utility at T = 4.4 to ensure accuracy
+# Sum the PV of utility at T = 0 with theta* and compare with NPV of utility at T = 4.4 to ensure accuracy
 # ---------------------------------------------------------------------------------------------------------
 
 theta_01 <- data.frame(sum(T_00$pv_utility),
@@ -456,8 +461,8 @@ T_exp_04 <- 4
 T_exp_06 <- 6
 theta <- 1
 
-# Create data frame for T = e(T) ~ 4.2
-# -------------------------------------
+# Create data frame for for each value of T
+# -----------------------------------------
 
 T_exp_01 <- data.frame(temp_increase = T_exp_02,
                    year = t,
@@ -483,8 +488,8 @@ T_exp_04 <- data.frame(temp_increase = T_exp_06,
   mutate(utility = utility(consumption)) %>% 
   mutate(pv_utility = utility/(1+discount_rate)^year)
 
-# Expected value of utility
-# -------------------------
+# Calculate expected value of utility
+# -----------------------------------
 
 T_exp <- sum(T_exp_01$pv_utility)*.2 + sum(T_exp_03$pv_utility)*.5 + sum(T_exp_04$pv_utility)*.3
 
@@ -495,8 +500,8 @@ T_exp <- sum(T_exp_01$pv_utility)*.2 + sum(T_exp_03$pv_utility)*.5 + sum(T_exp_0
 # Question 2d continued
 # ---------------------
 
-# Anthony's solution to 2c (Need to better understand how Anthony derived this function)
-# --------------------------------------------------------------------------------------
+# Use fzero to calculate theta*
+# -----------------------------
 theta_star_02 <- fzero(fun = function(theta) {((1-theta)^(1-n)*pct_change_01$utility_base) - T_exp}, 
                        x = 0)$x
 
