@@ -185,7 +185,6 @@ pct_change_01 <- data.frame(sum(T_04.4$T_00.pv_utility),
 
 ```
 
-
 ```{r}
 
 # Question 2b: Sensitivity analsys of 10% increase in T
